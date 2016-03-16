@@ -10,6 +10,9 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <string.h>
+#include <netinet/in.h>
+#include <netdb.h> 
+
 
 #define SOCK_PATH "echo_socket"
 
@@ -67,28 +70,28 @@ ct_code (void *param)
   //Initialisation pour client
   int socket_fd, connection, len;
   struct sockaddr_in addresse_serveur;
+  struct hostent *server;
   //A GENERALISER
   char buffer[4] = {'1','2','3','4'};
   
   //Création du socket cllient
-  if(socket_fd = socket(AF_INET, SOCK_STREAM,0) ==-1){
+  socket_fd = socket(AF_INET, SOCK_STREAM,0);
+  if(socket_fd ==-1){
 	  perror("socket");
 	  exit(1);
   }
   printf("Connection en cours...\n");
   //Information du serveur
   addresse_serveur.sin_family = AF_INET;
-  addresse_serveur.sin_addr.s_addr = INADDR_ANY;
   addresse_serveur.sin_port = htons (port_number);
+  addresse_serveur.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   //Connection avec le serveur
-  if(connection = connect(socket_fd, (struct addresse_socket *)&
-	addresse_serveur,len) ==-1){
+  connection = connect(socket_fd, (struct sockaddr *)&
+	addresse_serveur,sizeof(struct sockaddr));
+  if(connection == -1){
 		perror("connection");
 		exit(1);
 	}
-	
-	
-	read(socket_fd, buffer, 4);
 
     printf("%s", buffer);
 
