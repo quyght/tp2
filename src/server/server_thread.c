@@ -129,13 +129,20 @@ st_code (void *param)
       thread_socket_fd =
 	accept (server_socket_fd, (struct sockaddr *) &thread_addr,
 		&socket_len);
-   
+		
       if ((time (NULL) - start) >= max_wait_time)
 	{
 	  break;
 	}
     }
-
+	//TESTING
+		/*int newsockfd, n;
+		char buffer[256];
+		bzero(buffer,256);
+		n = read(newsockfd,buffer,255);
+		if (n < 0) error("ERROR reading from socket");
+		printf("Here is the message: %s",buffer);*/
+   
   // Boucle de traitement des requêtes.
   while (clients_ended < num_clients)
     {
@@ -162,6 +169,7 @@ st_code (void *param)
 void
 st_open_socket ()
 {
+	int lis;
   server_socket_fd = socket (AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
   if (server_socket_fd < 0)
     perror ("ERROR opening socket");
@@ -169,15 +177,22 @@ st_open_socket ()
   struct sockaddr_in serv_addr;
   bzero ((char *) &serv_addr, sizeof (serv_addr));
   serv_addr.sin_family = AF_INET;
-  serv_addr.sin_addr.s_addr = INADDR_ANY;
+  serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
   serv_addr.sin_port = htons (port_number);
-	printf("yo");
   if (bind
       (server_socket_fd, (struct sockaddr *) &serv_addr,
        sizeof (serv_addr)) < 0)
     perror ("ERROR on binding");
-
-  listen (server_socket_fd, server_backlog_size);
+  
+  lis = listen (server_socket_fd, server_backlog_size);
+  if (lis < 0){
+	  perror("listen");
+		exit(1);
+  }
+  int as_len;
+  as_len = sizeof(serv_addr);
+    getsockname(server_socket_fd, (struct sockaddr *)&serv_addr, &as_len);
+	 printf("port number pour serveur%d\n", ntohs(serv_addr.sin_port));
 }
 
 

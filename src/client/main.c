@@ -9,6 +9,8 @@ main (int argc, char *argv[argc + 1])
 {
   client_thread client_threads[num_clients];
 
+  //Faire le begin et l'init
+
   for (unsigned int i = 0; i < num_clients; i++)
     {
       ct_init (&(client_threads[i]));
