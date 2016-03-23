@@ -55,7 +55,6 @@ send_request (int client_id, int request_id, int socket_fd)
 
   fprintf (stdout, "Client %d is sending its %d request\n", client_id,
 	   request_id);
-	//Begin
 	if (request_id ==0){
 		
 	}
@@ -64,59 +63,11 @@ send_request (int client_id, int request_id, int socket_fd)
 
 }
 
-
 void *
 ct_code (void *param)
 {
   client_thread *ct = (client_thread *) param;
-    
-	
-	
-  //Initialisation pour client
-  int socket_fd, connection;
-  struct sockaddr_in serv_addr;
-  struct hostent *server;
-  char *name;
-  size_t len;
-
-  //Création du socket cllient
-  socket_fd = socket(AF_INET, SOCK_STREAM,0);
-  if(socket_fd ==-1){
-	  perror("socket");
-	  exit(1);
-  }
-  
-  //Information du serveur
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons (port_number);
-  serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-  //Connection avec le serveur
-  connection = connect(socket_fd, (struct sockaddr *)&
-	serv_addr,sizeof(struct sockaddr));
-  if(connection == -1){
-		perror("connection");
-		exit(1);
-	}
-	//testing
-	char buffer[256];
-	buffer[0] = 'a';
-	buffer[1] = '\0';
-	int n;
-    n = write(socket_fd,buffer,strlen(buffer));
-  for (unsigned int request_id = 0; request_id < num_request_per_client;
-       request_id++)
-    {
-
-      // TP2 TODO
-      // Vous devez ici coder, conjointement avec le corps de send request,
-      // le protocole d'envoie de requête.
-	  
-	  
-      send_request (ct->id, request_id, socket_fd);
-
-      // TP2 TODO:END
-
-    }
+  int socket_fd;
 
   pthread_exit (NULL);
 }

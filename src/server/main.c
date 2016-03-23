@@ -10,6 +10,7 @@ main (int argc, char *argv[argc + 1])
 {
   server_thread st[num_server_threads];
 
+
   // Ouvre un socket
   st_open_socket ();
 

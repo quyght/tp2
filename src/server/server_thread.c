@@ -3,7 +3,7 @@
 
 #include <netinet/in.h>
 #include <netdb.h>
-
+#include <sys/time.h>
 #include <strings.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,6 +24,7 @@ extern const unsigned int *available_resources;
 
 
 unsigned int server_socket_fd;
+
 
 // Structures de données pour l'algorithme du banquier.
 // Pour les tableaux de 2 dimensions, utilisez des tableaux de pointeurs de tableaux.
@@ -112,6 +113,11 @@ st_signal ()
   // TODO end
 }
 
+st_recv()
+{
+	
+}
+
 
 void *
 st_code (void *param)
@@ -119,7 +125,7 @@ st_code (void *param)
   server_thread *st = (server_thread *) param;
 
   struct sockaddr_in thread_addr;
-  socklen_t socket_len = sizeof (thread_addr);
+    socklen_t socket_len = sizeof (thread_addr);
   int thread_socket_fd = -1;
   int start = time (NULL);
 
@@ -129,19 +135,47 @@ st_code (void *param)
       thread_socket_fd =
 	accept (server_socket_fd, (struct sockaddr *) &thread_addr,
 		&socket_len);
-		
       if ((time (NULL) - start) >= max_wait_time)
 	{
 	  break;
 	}
     }
-	//TESTING
-		/*int newsockfd, n;
-		char buffer[256];
-		bzero(buffer,256);
-		n = read(newsockfd,buffer,255);
-		if (n < 0) error("ERROR reading from socket");
-		printf("Here is the message: %s",buffer);*/
+	  
+		//TESTING
+	/*int truc;
+	fd_set readfds; 
+	FD_ZERO(&readfds);
+	 struct timeval tv;
+	 tv.tv_sec = 2;
+    tv.tv_usec = 500000;
+	FD_SET(client_socket, &readfds);*/
+	unsigned int msg[3];
+int lentest, bytes_sent;
+lentest = 12;
+bytes_sent = recv(thread_socket_fd, msg, lentest, 0);
+if (bytes_sent <0){
+	perror("recv");
+	  exit(1);
+}
+printf("%d \n", msg[0]);
+printf("%d \n", msg[1]);
+printf("%d \n", msg[2]);
+/*if (msg[0] =! 1){
+	printf("Not following the protocol");
+	msg[0] = 7;
+	bytes_sent = send(client_socket, msg, lentest, 0);
+	exit(1);
+}
+if (msg[1] =! num_resources){
+	printf("BEGIN : pas le meme nombre de resource entre server et client");
+	msg[0] = 7;
+	bytes_sent = send(client_socket, msg, lentest, 0);
+	exit(1);
+}
+msg[0] = 3;
+bytes_sent = send(client_socket, msg, lentest, 0);
+*/
+	
    
   // Boucle de traitement des requêtes.
   while (clients_ended < num_clients)
@@ -170,11 +204,16 @@ void
 st_open_socket ()
 {
 	int lis;
-  server_socket_fd = socket (AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-  if (server_socket_fd < 0)
+	int client_socket;
+	client_socket = -1;
+	int start = time(NULL);
+
+    server_socket_fd = socket (AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
+    if (server_socket_fd < 0)
     perror ("ERROR opening socket");
 
   struct sockaddr_in serv_addr;
+  
   bzero ((char *) &serv_addr, sizeof (serv_addr));
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -189,10 +228,7 @@ st_open_socket ()
 	  perror("listen");
 		exit(1);
   }
-  int as_len;
-  as_len = sizeof(serv_addr);
-    getsockname(server_socket_fd, (struct sockaddr *)&serv_addr, &as_len);
-	 printf("port number pour serveur%d\n", ntohs(serv_addr.sin_port));
+
 }
 
 
