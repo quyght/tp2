@@ -67,12 +67,122 @@ unsigned int num_clients;
 void
 st_init ()
 {
-  // TODO
-
+ struct sockaddr_in  client_addr;
+ int clilen = sizeof(client_addr);
+ int new_server_socket_fd = accept(server_socket_fd,(struct sockaddr *)&client_addr,&clilen);
   // Attend la connection d'un client et initialise les structures pour
   // l'algorithme du banquier.
 
   // END TODO
+}
+ //algorithme du banquier
+void algo_banquier(){
+    int *available;
+    int **max;
+    int **allocation;
+    int **need;
+    
+    //declarations des tableaux statiques qui representent les requetes recu par le serveur
+    
+    int res_alloue[1][4] = {{4,0,0,3}};
+    int max_res[1][4]={{3,2,1,4}};
+    int res_dispo[4] = {1,2,2,2};
+    int i,j, count = 0, safe = 1, exec;
+    
+    //declaration des structures des données ou seront stocké les données provenant des requetes ( tableaux ci haut)
+    
+    available = (int * ) malloc (num_resources * sizeof (int[num_resources]));
+    for (i=0; i<num_resources; i++) {
+        available[i] = res_dispo[i];
+    }
+    allocation = (int ** ) malloc (num_clients * sizeof (int[num_clients]));
+    for (i=0;i<num_clients;i++)
+    {
+        allocation[i]=(int *)malloc(num_resources * sizeof(int[num_resources]));
+    }
+    
+    need = (int ** ) malloc (num_clients * sizeof (int[num_clients]));
+    for (i=0;i<num_clients;i++)
+    {
+        need[i]=(int *)malloc(num_resources * sizeof(int[num_resources]));
+    }
+    
+    max = (int ** ) malloc (num_clients * sizeof (int[num_clients]));
+    for (i=0;i<num_clients;i++)
+    {
+        max[i]=(int *)malloc(num_resources * sizeof(int[num_resources]));
+    }
+    
+    for (i = 0; i < num_clients; i++)
+    {
+        for (j = 0; j < num_resources; j++)
+        {
+            allocation[i][j] = res_alloue[i][j];
+            max[i][j] = max_res[i][j];
+            if (allocation[i][j]<=0) {
+                need[i][j] = max[i][j] - abs(allocation[i][j]);
+            }
+            else
+               need[i][j] = max[i][j] - allocation[i][j];
+        }
+        
+    }
+   int running[1];
+    for (i = 0; i < num_clients; i++) {
+        running[i] = 1;
+        count++;
+    }
+    
+    //boucle pour verifier si l'etat est safe ou unsafe
+    
+    while (count != 0) {
+        safe = 0;
+        for (i = 0; i < num_clients; i++) {
+            if (running[i]) {
+                exec = 1;
+                for (j = 0; j < num_resources; j++) {
+                    if (need[i][j] > available[j]) {
+                        exec = 0;
+                        break;
+                    }
+                }
+                if (exec) {
+                    printf("\nProcess%d is executing\n", i + 1);
+                    running[i] = 0;
+                    count--;
+                    safe = 1;
+                    
+                    //ici on retourne toutes les ressources allouées
+                    
+                    for (j = 0; j < num_resources; j++) {
+                        
+                       if (allocation[i][j]<=0) {
+                             available[j] += abs(allocation[i][j]);
+                        }
+                        else
+                            available[j] += allocation[i][j];
+                    }
+                    break;
+                }
+            }
+        }
+        if (!safe) {
+            printf("\nThe processes are in unsafe state.\n");
+            break;
+        } else {
+            printf("\nThe process is in safe state");
+            printf("\nAvailable vector:");
+            for (i = 0; i < num_resources; i++) {
+                printf("\t%d", available[i]);
+            }
+            printf("\n");
+        
+    }
+        free (allocation);
+        free (max);
+        free(available);
+        free(need);
+    }
 }
 
 void
