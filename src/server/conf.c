@@ -6,5 +6,5 @@ const int port_number = 2016;
 const unsigned int num_resources = NUM_RESOURCES;
 const unsigned int num_server_threads = 1;
 const unsigned int max_wait_time = 30;
-const unsigned int server_backlog_size = 5;
+const unsigned int server_backlog_size = 10;
 const unsigned int available_resources[NUM_RESOURCES] = { 10, 5, 7 };

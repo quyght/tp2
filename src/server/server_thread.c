@@ -238,10 +238,10 @@ st_code (void *param)
     socklen_t socket_len = sizeof (thread_addr);
   int thread_socket_fd = -1;
   int start = time (NULL);
-
   // Boucle jusqu'à ce que accept recoive la première connection.
   while (thread_socket_fd < 0)
     {
+		//printf("allo");
       thread_socket_fd =
 	accept (server_socket_fd, (struct sockaddr *) &thread_addr,
 		&socket_len);
@@ -259,7 +259,7 @@ st_code (void *param)
 	 tv.tv_sec = 2;
     tv.tv_usec = 500000;
 	FD_SET(client_socket, &readfds);*/
-	unsigned int msg[3];
+	/*unsigned int msg[3];
 int lentest, bytes_sent;
 lentest = 12;
 bytes_sent = recv(thread_socket_fd, msg, lentest, 0);
@@ -314,30 +314,92 @@ void
 st_open_socket ()
 {
 	int lis;
-	int client_socket;
-	client_socket = -1;
+	int client_socket_fd;
 	int start = time(NULL);
 
     server_socket_fd = socket (AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
-    if (server_socket_fd < 0)
+    if (server_socket_fd < 0){
     perror ("ERROR opening socket");
-
+     close(server_socket_fd);
+	 exit(1);
+	}
   struct sockaddr_in serv_addr;
-  
+  	printf("%d \n", server_socket_fd);
   bzero ((char *) &serv_addr, sizeof (serv_addr));
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
   serv_addr.sin_port = htons (port_number);
   if (bind
       (server_socket_fd, (struct sockaddr *) &serv_addr,
-       sizeof (serv_addr)) < 0)
+       sizeof (serv_addr)) < 0){
     perror ("ERROR on binding");
+	close(server_socket_fd);
+	exit(1);
+	   }
   
   lis = listen (server_socket_fd, server_backlog_size);
   if (lis < 0){
 	  perror("listen");
+	  close(server_socket_fd);
 		exit(1);
   }
+
+  socklen_t socket_len = sizeof (serv_addr);
+  client_socket_fd = -1;
+  // Boucle jusqu'à ce que accept recoive la première connection.
+  while (client_socket_fd < 0)
+    {
+		//printf("allo");
+      client_socket_fd =
+	accept (server_socket_fd, (struct sockaddr *) &serv_addr,
+		&socket_len);
+      if ((time (NULL) - start) >= max_wait_time)
+	{
+	  break;
+	}
+    }
+	if (client_socket_fd < 0){
+		perror("accept");
+		close(server_socket_fd);
+		exit(1);
+	}
+	  
+		//TESTING
+	/*int truc;
+	fd_set readfds; 
+	FD_ZERO(&readfds);
+	 struct timeval tv;
+	 tv.tv_sec = 2;
+    tv.tv_usec = 500000;
+	FD_SET(client_socket, &readfds);*/
+	unsigned int msg[3];
+int lentest, bytes_sent;
+lentest = 12;
+bytes_sent = recv(client_socket_fd, msg, lentest, 0);
+if (bytes_sent <0){
+	perror("recv");
+	close(server_socket_fd);
+	close(client_socket_fd);
+	  exit(1);
+}
+printf("%d \n", msg[0]);
+printf("%d \n", msg[1]);
+printf("%d \n", msg[2]);
+/*if (msg[0] =! 1){
+	printf("Not following the protocol");
+	msg[0] = 7;
+	bytes_sent = send(client_socket, msg, lentest, 0);
+	exit(1);
+}
+if (msg[1] =! num_resources){
+	printf("BEGIN : pas le meme nombre de resource entre server et client");
+	msg[0] = 7;
+	bytes_sent = send(client_socket, msg, lentest, 0);
+	exit(1);
+}
+msg[0] = 3;
+bytes_sent = send(client_socket, msg, lentest, 0);
+*/
 
 }
 

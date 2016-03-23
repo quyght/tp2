@@ -15,6 +15,7 @@
 #include "client_thread.h"
 
 extern unsigned int num_clients;
+extern const unsigned int max_wait_time;
 extern const unsigned int num_resources;
 extern const int port_number;
 
@@ -30,11 +31,13 @@ main (int argc, char *argv[argc + 1])
   struct hostent *server;
   char *name;
   size_t len;
+  int start = time(NULL);
 
   //Création du socket cllient
   socket_fd = socket(AF_INET, SOCK_STREAM,0);
   if(socket_fd ==-1){
 	  perror("socket");
+	  close(socket_fd);
 	  exit(1);
   }
   
@@ -43,11 +46,21 @@ main (int argc, char *argv[argc + 1])
   serv_addr.sin_port = htons (port_number);
   serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
   //Connection avec le serveur
-  
-  serv_fd = connect(socket_fd, (struct sockaddr *)&
+  serv_fd = -1;
+    while (serv_fd < 0)
+    {
+      serv_fd = connect(socket_fd, (struct sockaddr *)&
 	serv_addr,sizeof(struct sockaddr));
+      if ((time (NULL) - start) >= max_wait_time)
+	{
+	  break;
+	}
+    }
+  
+	printf("%d \n", socket_fd);
   if(serv_fd == -1){
 		perror("connection");
+		close(socket_fd);
 		exit(1);
 	}
 	//Envoi du BEGIN au serveur
@@ -61,6 +74,8 @@ lenbuffer = 12;
 bytes_sent = send(socket_fd, buffer, lenbuffer, 0);
 if (bytes_sent < 0){
 	perror("send");
+	close(socket_fd);
+	close(serv_fd);
 	exit(1);
 }/*
 bytes_sent = recv(socket_fd, msg, lentest, 0);
