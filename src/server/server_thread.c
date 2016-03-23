@@ -259,31 +259,31 @@ st_code (void *param)
 	 tv.tv_sec = 2;
     tv.tv_usec = 500000;
 	FD_SET(client_socket, &readfds);*/
-	/*unsigned int msg[3];
-int lentest, bytes_sent;
+	/*unsigned int buffer[3];
+int lentest, comm;
 lentest = 12;
-bytes_sent = recv(thread_socket_fd, msg, lentest, 0);
-if (bytes_sent <0){
+comm = recv(thread_socket_fd, buffer, lentest, 0);
+if (comm <0){
 	perror("recv");
 	  exit(1);
 }
-printf("%d \n", msg[0]);
-printf("%d \n", msg[1]);
-printf("%d \n", msg[2]);
-/*if (msg[0] =! 1){
+printf("%d \n", buffer[0]);
+printf("%d \n", buffer[1]);
+printf("%d \n", buffer[2]);
+/*if (buffer[0] != 1){
 	printf("Not following the protocol");
-	msg[0] = 7;
-	bytes_sent = send(client_socket, msg, lentest, 0);
+	buffer[0] = 7;
+	comm = send(client_socket, buffer, lentest, 0);
 	exit(1);
 }
-if (msg[1] =! num_resources){
+if (buffer[1] != num_resources){
 	printf("BEGIN : pas le meme nombre de resource entre server et client");
-	msg[0] = 7;
-	bytes_sent = send(client_socket, msg, lentest, 0);
+	buffer[0] = 7;
+	comm = send(client_socket, buffer, lentest, 0);
 	exit(1);
 }
-msg[0] = 3;
-bytes_sent = send(client_socket, msg, lentest, 0);
+buffer[0] = 3;
+comm = send(client_socket, buffer, lentest, 0);
 */
 	
    
@@ -324,7 +324,6 @@ st_open_socket ()
 	 exit(1);
 	}
   struct sockaddr_in serv_addr;
-  	printf("%d \n", server_socket_fd);
   bzero ((char *) &serv_addr, sizeof (serv_addr));
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -372,34 +371,33 @@ st_open_socket ()
 	 tv.tv_sec = 2;
     tv.tv_usec = 500000;
 	FD_SET(client_socket, &readfds);*/
-	unsigned int msg[3];
-int lentest, bytes_sent;
-lentest = 12;
-bytes_sent = recv(client_socket_fd, msg, lentest, 0);
-if (bytes_sent <0){
+	unsigned int buffer[3];
+int bufferlen, comm;
+bufferlen = 12;
+comm = recv(client_socket_fd, buffer, bufferlen, 0);
+
+if (comm <0){
 	perror("recv");
 	close(server_socket_fd);
 	close(client_socket_fd);
 	  exit(1);
 }
-printf("%d \n", msg[0]);
-printf("%d \n", msg[1]);
-printf("%d \n", msg[2]);
-/*if (msg[0] =! 1){
-	printf("Not following the protocol");
-	msg[0] = 7;
-	bytes_sent = send(client_socket, msg, lentest, 0);
+
+if (buffer[0] != 1){
+	printf("Not following the protocol (BEGIN : server) \n");
+	buffer[0] = 9;
+	comm = send(client_socket_fd, buffer, bufferlen, 0);
 	exit(1);
 }
-if (msg[1] =! num_resources){
+if (buffer[1] != num_resources){
 	printf("BEGIN : pas le meme nombre de resource entre server et client");
-	msg[0] = 7;
-	bytes_sent = send(client_socket, msg, lentest, 0);
+	buffer[0] = 9;
+	comm = send(client_socket_fd, buffer, bufferlen, 0);
 	exit(1);
 }
-msg[0] = 3;
-bytes_sent = send(client_socket, msg, lentest, 0);
-*/
+buffer[0] = 3;
+comm = send(client_socket_fd, buffer, bufferlen, 0);
+
 
 }
 

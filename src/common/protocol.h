@@ -4,7 +4,7 @@
 typedef enum PROTOCOL_MESSAGE p_msg;
 enum PROTOCOL_MESSAGE
 {
-  BEGIN,  //1
+  BEGIN,//1
   CLOSE,//2
   ACK,//3
   REQ,//4

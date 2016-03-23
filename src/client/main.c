@@ -26,18 +26,17 @@ main (int argc, char *argv[argc + 1])
 
   //Faire le begin
   //Initialisation pour client
-  int socket_fd, serv_fd;
+  int client_socket_fd, serv_fd;
   struct sockaddr_in serv_addr;
   struct hostent *server;
   char *name;
-  size_t len;
   int start = time(NULL);
 
   //Création du socket cllient
-  socket_fd = socket(AF_INET, SOCK_STREAM,0);
-  if(socket_fd ==-1){
+ client_socket_fd = socket(AF_INET, SOCK_STREAM,0);
+  if(client_socket_fd ==-1){
 	  perror("socket");
-	  close(socket_fd);
+	  close(client_socket_fd);
 	  exit(1);
   }
   
@@ -49,18 +48,16 @@ main (int argc, char *argv[argc + 1])
   serv_fd = -1;
     while (serv_fd < 0)
     {
-      serv_fd = connect(socket_fd, (struct sockaddr *)&
+      serv_fd = connect(client_socket_fd, (struct sockaddr *)&
 	serv_addr,sizeof(struct sockaddr));
       if ((time (NULL) - start) >= max_wait_time)
 	{
 	  break;
 	}
     }
-  
-	printf("%d \n", socket_fd);
   if(serv_fd == -1){
 		perror("connection");
-		close(socket_fd);
+		close(client_socket_fd);
 		exit(1);
 	}
 	//Envoi du BEGIN au serveur
@@ -68,36 +65,38 @@ main (int argc, char *argv[argc + 1])
 	buffer[0] = 1;
 	buffer[1] = num_resources;
 	buffer[2] = num_clients;
-	//printf("%ul", sizeof(msg[0]));
-int lenbuffer, bytes_sent;
-lenbuffer = 12;
-bytes_sent = send(socket_fd, buffer, lenbuffer, 0);
-if (bytes_sent < 0){
+	//printf("%ul", sizeof(buffer[0]));
+int bufferlen, comm;
+bufferlen = 12;
+comm = send(client_socket_fd, buffer, bufferlen, 0);
+if (comm < 0){
 	perror("send");
-	close(socket_fd);
+	close(client_socket_fd);
 	close(serv_fd);
 	exit(1);
-}/*
-bytes_sent = recv(socket_fd, msg, lentest, 0);
-if (msg[0] =! 3 || msg =! 5 || msg =! 7){
-	printf("Not following the protocol");
-	msg[0] = 9;
-	bytes_sent = send(client_socket, msg, lentest, 0);
+}
+comm = recv(client_socket_fd, buffer, bufferlen, 0);
+printf("%d \n", buffer[0]);
+
+if (buffer[0] != 3 && buffer[0] != 5 && buffer[0] != 7){
+	printf("Not following the protocol (BEGIN : client) \n");
+	buffer[0] = 9;
+	comm = send(client_socket_fd, buffer, bufferlen, 0);
 	exit(1);
 }
-if (msg[1] =! num_resources){
-	printf("BEGIN : pas le meme nombre de resource entre server et client");
-	msg[0] = 7;
-	bytes_sent = send(client_socket, msg, lentest, 0);
+if (buffer[1] != num_resources){
+	printf("BEGIN : pas le meme nombre de resource entre server et client \n");
+	buffer[0] = 7;
+	comm = send(client_socket_fd, buffer, bufferlen, 0);
 	exit(1);
-}*/
-//printf("%c \n", msg[0]);
-//printf("%d \n", bytes_sent);
+}
+//printf("%c \n", buffer[0]);
+//printf("%d \n", comm);
 	/*char buffer[256];
 	buffer[0] = 'a';
 	buffer[1] = '\0';
 	int n;
-    n = write(socket_fd,buffer,strlen(buffer));*/
+    n = write(socket_fd,buffer,strbuffer(buffer));*/
   for (unsigned int i = 0; i < num_clients; i++)
     {
       ct_init (&(client_threads[i]));
